@@ -17,7 +17,7 @@ const corsOptions = {
     'http://localhost:5175',
     'http://localhost:5176',
     'http://localhost:5177',
-    // 'https://medi-quest-c6cb9.web.app',
+    'https://tradenest-33e74.web.app',
   ],
   credentials: true,
   optionSuccessStatus: 200,
@@ -86,7 +86,21 @@ async function run() {
           .send({ message: 'Forbidden access! Seller Only' });
       next();
     };
+    // for search medicine 
+    app.get('/medicines', async (req, res) => {
+      try {
+        const search = req.query.search || '';
+        const regex = new RegExp(search, 'i'); // case-insensitive regex
+        const results = await medicinesCollection
+          .find({ name: { $regex: regex } }) // assuming the field is `name`
+          .toArray();
 
+        res.json(results);
+      } catch (error) {
+        console.error('Error fetching medicines:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
     // save or update users in db
     app.post('/users/:email', async (req, res) => {
       const email = req.params.email;
